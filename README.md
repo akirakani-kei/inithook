@@ -1,2 +1,2 @@
 # inithook
-boot activity monitor sent via webhooks
+Tracker Service for Startup Activity via HTTP Requests
