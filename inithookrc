@@ -1,0 +1,18 @@
+### CONFIGURATION FILE FOR inithook
+### MAKE SURE THERE IS A SPACE BETWEEN EACH EQUAL SIGN AND ARGUMENT
+
+
+[Options]
+
+### Uncomment your preferred format.
+#format = simple
+#format = complex
+
+
+[Discord]
+
+### Client token (found at: https://discord.com/developers/applications)
+token = 
+### ID of channel where the client should send boot information (right click on wanted channel, click on Copy Channel ID)
+channel-id = 
+
