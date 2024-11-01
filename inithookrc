@@ -12,7 +12,8 @@
 [Discord]
 
 ### Client token (found at: https://discord.com/developers/applications)
-token = 
+token =
+
 ### ID of channel where the client should send boot information (right click on wanted channel, click on Copy Channel ID)
 channel-id = 
 
