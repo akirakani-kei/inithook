@@ -8,6 +8,7 @@ echo    " '--------------------------------------'"
 
 echo
 echo INITHOOK INSTALLATION SETUP
+echo
 
 git clone https://github.com/akirakani-kei/inithook
 cd inithook
