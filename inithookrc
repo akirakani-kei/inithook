@@ -15,5 +15,12 @@
 token =
 
 ### ID of channel where the client should send boot information (right click on wanted channel, click on Copy Channel ID)
-channel-id = 
+channel-id =
 
+### Embed Color (must be decimal)
+
+# embed-color = 3880010
+# or
+# embed-color = random
+
+embed-color = random
