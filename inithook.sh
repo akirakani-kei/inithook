@@ -38,7 +38,13 @@ while [ $attempt -le 20 ]; do
 
         TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
         CHANNEL_ID=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+            if [ "$COLOR" == "random" ]; then
+                COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
+            fi
         MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
+
+
 
         JSON_THING=$(cat << EOF
         {
@@ -48,7 +54,7 @@ while [ $attempt -le 20 ]; do
                     "footer": {
                     "text": "github.com/akirakani-kei"
                     },                    
-                    "color": 3880010
+                    "color": $COLOR
                 }
             ]
         }
