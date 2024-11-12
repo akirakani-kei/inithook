@@ -2,6 +2,7 @@
 
 attempt=1
 
+distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
 while [ $attempt -le 20 ]; do
 
 
@@ -52,7 +53,11 @@ while [ $attempt -le 20 ]; do
                 {
                     "description": "$MESSAGE_CONTENT",
                     "footer": {
-                    "text": "github.com/akirakani-kei"
+                    "text": "github.com/akirakani-kei",
+                    "icon_url": "https://avatars.githubusercontent.com/u/52973114"
+                    },
+                    "thumbnail": {
+                    "url": "https://librehunt.org/logos/$distro.png"
                     },                    
                     "color": $COLOR
                 }
