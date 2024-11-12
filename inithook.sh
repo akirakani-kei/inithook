@@ -57,7 +57,7 @@ while [ $attempt -le 20 ]; do
                     "icon_url": "https://avatars.githubusercontent.com/u/52973114"
                     },
                     "thumbnail": {
-                    "url": "https://librehunt.org/logos/$distro.png"
+                    "url": "https://raw.githubusercontent.com/akirakani-kei/distro-icons/refs/heads/main/icons/$distro.png"
                     },                    
                     "color": $COLOR
                 }
@@ -69,7 +69,6 @@ EOF
         curl --request POST -H "Content-Type: application/json" -H "Authorization: Bot $TOKEN" \
         -d "$JSON_THING" \
         https://discord.com/api/v10/channels/$CHANNEL_ID/messages
-
 
 
 
