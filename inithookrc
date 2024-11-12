@@ -8,6 +8,9 @@
 #format = simple
 #format = complex
 
+### Set distro-image to false if you don't want the in-use distro icon sent with the embed.
+distro-image = true
+
 
 [Discord]
 
