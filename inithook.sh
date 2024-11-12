@@ -2,7 +2,6 @@
 
 attempt=1
 
-distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
 while [ $attempt -le 20 ]; do
 
 
@@ -34,6 +33,15 @@ while [ $attempt -le 20 ]; do
         echo "${OUTPUT5}" >> /var/log/inithooktemp.log
 
     fi
+
+
+        distroif=$(grep -oP '^(?!#).*distro-image = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+
+        if [ "$distroif" = "true" ]; then
+
+        distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
+
+        fi
 
         
 
