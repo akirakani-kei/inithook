@@ -1,4 +1,4 @@
-### CONFIGURATION FILE FOR inithook
+### CONFIGURATION FILE FOR inithook (https://github.com/akirakani-kei/inithook)
 ### MAKE SURE THERE IS A SPACE BETWEEN EACH EQUAL SIGN AND ARGUMENT
 
 
@@ -18,7 +18,12 @@ distro-image = true
 token =
 
 ### ID of channel where the client should send boot information (right click on wanted channel, click on Copy Channel ID)
+### You can add multiple Channel IDs (separated by a space) for different servers/channels
+
+# channel-id = ID1 ID2 ID3
+
 channel-id =
+
 
 ### Embed Color (must be decimal)
 
