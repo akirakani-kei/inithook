@@ -1,95 +1,110 @@
 #!/bin/bash
 
-echo    ".----------------------------------------."
-echo    "|  _       _ _   _                 _     |"
-echo    "| (_)_ __ (_) |_| |__   ___   ___ | | __ |"
-echo    "| | | '_ \| | __| '_ \ / _ \ / _ \| |/ / |"
-echo    "| | | | | | | |_| | | | (_) | (_) |   <  |"
-echo    "| |_|_| |_|_|\__|_| |_|\___/ \___/|_|\_\ |"
-echo    "'----------------------------------------'"
+attempt=1
 
-echo
-echo INITHOOK INSTALLATION SETUP
-echo
+start_time=$(date +%s.%N)
 
-git clone https://github.com/akirakani-kei/inithook
-cd inithook
+while [ $attempt -le 20 ]; do
 
-if [ "$(id -u)" -eq 0 ]; then
-  
-  echo "Running as root (configuration file will be stored in /root/.config/inithook)"
-  echo
-  echo "WARNING: When installing as root, the script will ONLY function properly when root is the only logged in/configured user on the system; otherwise, it will try to fetch its non-existent configuration file from the non-root user."
-  echo "If you have a non-root user configured, switch into it and run the script again."
-  echo
 
-read -p "Continue as root? [Y/n]: " prompt
+    if ping -c 1 8.8.8.8 &> /dev/null; then
 
-prompt="${prompt:-Y}"
-prompt=$(echo "$prompt" | tr '[:upper:]' '[:lower:]')
+    connection_time=$(date +%s.%N)
+    delta=$(echo "$connection_time - $start_time" | bc)
 
-if [ "$prompt" = "y" ]; then
+    touch /var/log/inithooktemp.log
 
-    echo "Continuing as root..."
-    mv inithook.sh /usr/local/bin/
-    chmod +x /usr/local/bin/inithook.sh
-    mv inithook.service /etc/systemd/system/
-    systemctl enable inithook.service
-else
-    echo "Halted."
-    cd ..
-    rm -rf inithook
+
+    format=$(grep -oP '^(?!#).*format = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+
+    if [ "$format" = "simple" ]; then
+
+
+    OUTPUT="***$HOSTNAME** booted in: **$(systemd-analyze | grep -oP '(?<=\= ).*')***"
+    echo "${OUTPUT}" > /var/log/inithooktemp.log
+
+    elif [ "$format" = "complex" ]; then
+
+        OUTPUT1="***$HOSTNAME** booted in: **$(systemd-analyze | grep -oP '(?<=\= ).*')***"
+        OUTPUT2="*firmware: $(systemd-analyze | sed -n 's/.*Startup finished in \([^ ]*\).*/\1/p')*"
+        OUTPUT3="*loader: $(systemd-analyze | sed -n 's/.*(firmware) + \([^ ]*\).*/\1/p')*"
+        OUTPUT4="*kernel: $(systemd-analyze | sed -n 's/.*(loader) + \([^ ]*\).*/\1/p')*"
+        OUTPUT5="*userspace: $(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')*"
+        echo "${OUTPUT1}" > /var/log/inithooktemp.log
+        echo >> /var/log/inithooktemp.log
+        echo "${OUTPUT2}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT3}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT4}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT5}" >> /var/log/inithooktemp.log
+        echo >> /var/log/inithooktemp.log
+        printf "*Connection established after: %.3f seconds.*" "$delta" >> /var/log/inithooktemp.log
+    fi
+
+
+        distroif=$(grep -oP '^(?!#).*distro-image = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+
+        if [ "$distroif" = "true" ]; then
+
+        distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
+
+        fi
+
+        
+
+        TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        CHANNEL_ID=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+            if [ "$COLOR" == "random" ]; then
+                COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
+            fi
+        MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
+
+
+
+        JSON_THING=$(cat << EOF
+        {
+            "embeds": [
+                {
+                    "description": "$MESSAGE_CONTENT",
+                    "footer": {
+                    "text": "github.com/akirakani-kei",
+                    "icon_url": "https://avatars.githubusercontent.com/u/52973114"
+                    },
+                    "thumbnail": {
+                    "url": "https://raw.githubusercontent.com/akirakani-kei/distro-icons/refs/heads/main/icons/$distro.png"
+                    },                    
+                    "color": $COLOR
+                }
+            ]
+        }
+EOF
+)
+
+        curl --request POST -H "Content-Type: application/json" -H "Authorization: Bot $TOKEN" \
+        -d "$JSON_THING" \
+        https://discord.com/api/v10/channels/$CHANNEL_ID/messages
+
+
+
+        #!!!
+        exit 0
+        #!!!
+
+
+
+    else
+        echo "No internet connection found after $attempt attempts."
+        echo "No internet connection found after $attempt attempts." > /var/log/inithooktemp.log
+    fi
+    
+    attempt=$((attempt + 1))
+
+    sleep 10
+
+
+done
+
+
+if [ $attempt -gt 20 ]; then
     exit 1
 fi
-    
-elif command -v sudo >/dev/null; then
-  echo "Running with sudo"
-  
-sudo mv inithook.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/inithook.sh
-sudo mv inithook.service /etc/systemd/system/
-sudo systemctl enable inithook.service
-
-elif command -v doas >/dev/null; then
-  echo "Running with doas"
-  
-doas mv inithook.sh /usr/local/bin/
-doas chmod +x /usr/local/bin/inithook.sh
-doas mv inithook.service /etc/systemd/system/
-doas systemctl enable inithook.service
-
-else
-  echo "Neither sudo nor doas were found. Please install either of them to proceed."
-  echo "Installation was unsuccessful."
-  exit 1
-fi
-
-mkdir ~/.config/inithook
-mv inithookrc ~/.config/inithook/
-
-read -p "Enter Discord Client Token (found at: https://discord.com/developers/applications): " token
-read -p "Enter Discord Channel ID (right click on wanted channel, click on Copy Channel ID): " channel_id
-
-sed -i "/^[^#]*token =/s/token =.*/token = $token/" "$HOME/.config/inithook/inithookrc"
-sed -i "/^[^#]*channel-id =/s/channel-id =.*/channel-id = $channel_id/" "$HOME/.config/inithook/inithookrc"
-
-echo "Select format:"
-echo "1) simple (overall boot time)"
-echo "2) complex (times of specific boot stages)"
-read -p "(1, 2, s, c): " format_choice
-
-if [[ "$format_choice" == "1" || "$format_choice" == "s" ]]; then
-    sed -i "s/^#format = simple/format = simple/" "$HOME/.config/inithook/inithookrc"   
-    sed -i "s/^format = complex/#format = complex/" "$HOME/.config/inithook/inithookrc" 
-elif [[ "$format_choice" == "2" || "$format_choice" == "c" ]]; then
-    sed -i "s/^#format = complex/format = complex/" "$HOME/.config/inithook/inithookrc" 
-    sed -i "s/^format = simple/#format = simple/" "$HOME/.config/inithook/inithookrc"   
-else
-    echo "Invalid input, see ~/.config/inithook/inithookrc"
-fi
-
-
-cd ..
-
-rm -rf inithook
-echo "Installation successful. Modify ~./config/inithook/inithookrc for further configuration."
