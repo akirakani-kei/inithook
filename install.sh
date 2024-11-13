@@ -1,10 +1,15 @@
-echo    " .--------------------------------------."
-echo    "| _       _ _   _                 _    |"
-echo    "|(_)_ __ (_) |_| |__   ___   ___ | | __|"
-echo    "|| | '_ \| | __| '_ \ / _ \ / _ \| |/ /|"
-echo    "|| | | | | | |_| | | | (_) | (_) |   < |"
-echo    "||_|_| |_|_|\__|_| |_|\___/ \___/|_|\_\|"
-echo    " '--------------------------------------'"
+if [ "$(id -u)" -eq 0 ]; then
+    echo "Run me as normal user, not root!"
+    exit 1
+fi
+
+echo    ".----------------------------------------."
+echo    "| _       _ _   _                 _      |"
+echo    "| (_)_ __ (_) |_| |__   ___   ___ | | __ |"
+echo    "| | | '_ \| | __| '_ \ / _ \ / _ \| |/ / |"
+echo    "| | | | | | | |_| | | | (_) | (_) |   <  |"
+echo    "| |_|_| |_|_|\__|_| |_|\___/ \___/|_|\_\ |"
+echo    "'----------------------------------------'"
 
 echo
 echo INITHOOK INSTALLATION SETUP
@@ -12,6 +17,28 @@ echo
 
 git clone https://github.com/akirakani-kei/inithook
 cd inithook
+
+if command -v sudo >/dev/null; then
+  echo "Running with sudo"
+  
+sudo mv inithook.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/inithook.sh
+sudo mv inithook.service /etc/systemd/system/
+sudo systemctl enable inithook.service
+
+elif command -v doas >/dev/null; then
+  echo "Running with doas"
+  
+doas mv inithook.sh /usr/local/bin/
+doas chmod +x /usr/local/bin/inithook.sh
+doas mv inithook.service /etc/systemd/system/
+doas systemctl enable inithook.service
+
+else
+  echo "Neither sudo nor doas were found. Please install either of them to proceed."
+  echo "Installation was unsuccessful."
+  exit 1
+fi
 
 mkdir ~/.config/inithook
 mv inithookrc ~/.config/inithook/
@@ -37,13 +64,10 @@ else
     echo "Invalid input, see ~/.config/inithook/inithookrc"
 fi
 
-sudo mv inithook.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/inithook.sh
-sudo mv inithook.service /etc/systemd/system/
 
-sudo systemctl enable inithook.service
+
 
 cd ..
 
 rm -rf inithook
-echo "Installation successful."
+echo "Installation successful. Modify ~./config/inithook/inithookrc for further configuration."
