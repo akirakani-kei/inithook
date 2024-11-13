@@ -52,7 +52,7 @@ while [ $attempt -le 20 ]; do
         
 
         TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
-        CHANNEL_ID=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        CHANNEL_IDS=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
         COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
             if [ "$COLOR" == "random" ]; then
                 COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
@@ -79,10 +79,14 @@ while [ $attempt -le 20 ]; do
         }
 EOF
 )
+        for CHANNEL_ID in $CHANNEL_IDS; do
 
         curl --request POST -H "Content-Type: application/json" -H "Authorization: Bot $TOKEN" \
         -d "$JSON_THING" \
         https://discord.com/api/v10/channels/$CHANNEL_ID/messages
+
+        done
+        
 
 
 
