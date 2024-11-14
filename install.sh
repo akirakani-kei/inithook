@@ -33,6 +33,11 @@ if [ "$prompt" = "y" ]; then
     chmod +x /usr/local/bin/inithook.sh
     mv inithook.service /etc/systemd/system/
     systemctl enable inithook.service
+    mkdir ~/.config/inithook
+    mv inithookrc ~/.config/inithook/
+    cd ..
+    rm -rf inithook
+    
 else
     echo "Halted."
     cd ..
@@ -47,6 +52,11 @@ sudo mv inithook.sh /usr/local/bin/
 sudo chmod +x /usr/local/bin/inithook.sh
 sudo mv inithook.service /etc/systemd/system/
 sudo systemctl enable inithook.service
+mkdir ~/.config/inithook
+mv inithookrc ~/.config/inithook/
+cd ..
+sudo rm -rf inithook
+
 
 elif command -v doas >/dev/null; then
   echo "Running with doas"
@@ -55,15 +65,16 @@ doas mv inithook.sh /usr/local/bin/
 doas chmod +x /usr/local/bin/inithook.sh
 doas mv inithook.service /etc/systemd/system/
 doas systemctl enable inithook.service
+mkdir ~/.config/inithook
+mv inithookrc ~/.config/inithook/
+cd ..
+doas rm -rf inithook
 
 else
   echo "Neither sudo nor doas were found. Please install either of them to proceed."
   echo "Installation was unsuccessful."
   exit 1
 fi
-
-mkdir ~/.config/inithook
-mv inithookrc ~/.config/inithook/
 
 read -p "Enter Discord Client Token (found at: https://discord.com/developers/applications): " token
 read -p "Enter Discord Channel ID (right click on wanted channel, click on Copy Channel ID): " channel_id
@@ -73,7 +84,7 @@ sed -i "/^[^#]*channel-id =/s/channel-id =.*/channel-id = $channel_id/" "$HOME/.
 
 echo "Select format:"
 echo "1) simple (overall boot time)"
-echo "2) complex (times of specific boot stages)"
+echo "2) complex (times specific boot stages)"
 read -p "(1, 2, s, c): " format_choice
 
 if [[ "$format_choice" == "1" || "$format_choice" == "s" ]]; then
@@ -88,8 +99,4 @@ fi
 
 
 
-
-cd ..
-
-rm -rf inithook
 echo "Installation successful. Modify ~./config/inithook/inithookrc for further configuration."
