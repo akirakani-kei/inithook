@@ -5,12 +5,13 @@
 [Options]
 
 ### Uncomment your preferred format.
+### simple (overall boot time); complex (times specific boot stages)
+
 #format = simple
 #format = complex
 
 ### Set distro-image to false if you don't want the in-use distro icon sent with the embed.
 distro-image = true
-
 
 [Discord]
 
@@ -24,11 +25,12 @@ token =
 
 channel-id =
 
-
-### Embed Color (must be decimal)
+### Embed Color (custom colors must be decimal)
 
 # embed-color = 3880010
 # or
 # embed-color = random
+# or
+# embed-color = distro
 
-embed-color = random
+embed-color = distro
