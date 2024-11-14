@@ -1,8 +1,3 @@
-if [ "$(id -u)" -eq 0 ]; then
-    echo "Run me as normal user, not root!"
-    exit 1
-fi
-
 echo    ".----------------------------------------."
 echo    "|  _       _ _   _                 _     |"
 echo    "| (_)_ __ (_) |_| |__   ___   ___ | | __ |"
@@ -18,7 +13,34 @@ echo
 git clone https://github.com/akirakani-kei/inithook
 cd inithook
 
-if command -v sudo >/dev/null; then
+if [ "$(id -u)" -eq 0 ]; then
+  
+  echo "Running as root (configuration file will be stored in /root/.config/inithook)"
+  echo
+  echo "WARNING: When installing as root, the script will ONLY function properly when root is the only logged in/configured user on the system; otherwise, it will try to fetch its non-existent configuration file from the non-root user."
+  echo "If you have a non-root user configured, switch into it and run the script again."
+  echo
+
+read -p "Continue as root? [Y/n]: " prompt
+
+prompt="${prompt:-Y}"
+prompt=$(echo "$prompt" | tr '[:upper:]' '[:lower:]')
+
+if [ "$prompt" = "y" ]; then
+
+    echo "Continuing as root..."
+    mv inithook.sh /usr/local/bin/
+    chmod +x /usr/local/bin/inithook.sh
+    mv inithook.service /etc/systemd/system/
+    systemctl enable inithook.service
+else
+    echo "Halted."
+    cd ..
+    rm -rf inithook
+    exit 1
+fi
+    
+elif command -v sudo >/dev/null; then
   echo "Running with sudo"
   
 sudo mv inithook.sh /usr/local/bin/
