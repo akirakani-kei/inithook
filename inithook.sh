@@ -37,7 +37,7 @@ while [ $attempt -le 20 ]; do
         echo "${OUTPUT4}" >> /var/log/inithooktemp.log
         echo "${OUTPUT5}" >> /var/log/inithooktemp.log
         echo >> /var/log/inithooktemp.log
-        printf "*Connection established after: %.3f seconds.*" "$delta" >> /var/log/inithooktemp.log
+        printf "*Connection established after: %.3f seconds. (post boot)*" "$delta" >> /var/log/inithooktemp.log
     fi
 
 
@@ -103,7 +103,7 @@ EOF
     
     attempt=$((attempt + 1))
 
-    sleep 10
+    sleep 5
 
 
 done
