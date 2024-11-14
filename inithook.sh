@@ -46,9 +46,7 @@ while [ $attempt -le 20 ]; do
         if [ "$distroif" = "true" ]; then
 
         distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
-
         fi
-
         
 
         TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
@@ -56,7 +54,11 @@ while [ $attempt -le 20 ]; do
         COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
             if [ "$COLOR" == "random" ]; then
                 COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
+
+            elif [ "$COLOR" == "distro" ]; then
+            COLOR=$(curl -s https://raw.githubusercontent.com/akirakani-kei/distro-icons/refs/heads/main/colors | grep -oP "^(?!#).*\b$distro\b = \K.*")
             fi
+
         MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
 
 
