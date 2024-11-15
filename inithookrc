@@ -47,3 +47,4 @@ embed-color = distro
 ### DO NOT ADD ANYTHING BELOW THIS LINE THAT SHOULDN'T BE EXECUTED
 ### Add a custom, executable POST request code block below (preferrably using curl)
 
+### FETCH BOOT INFORMATION FROM /var/log/inithooktemp.log
