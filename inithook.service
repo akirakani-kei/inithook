@@ -1,6 +1,7 @@
 [Unit]
 Description=Tracker Service for Startup Activity via HTTP Requests
-After=multi-user.target systemd-user-sessions.service
+After=multi-user.target systemd-user-sessions.service graphical.target
+Wants=graphical.target
 
 [Service]
 ExecStart=/usr/local/bin/inithook.sh
