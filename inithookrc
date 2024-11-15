@@ -18,7 +18,7 @@ distro-image = true
 ### Uncomment all platforms you'd like the script to send boot information to.
 
 #discord
-#custom-curl
+#custom
 
 [Discord]
 
@@ -41,3 +41,9 @@ channel-id =
 # embed-color = distro
 
 embed-color = distro
+
+[Custom]
+
+### DO NOT ADD ANYTHING BELOW THIS LINE THAT SHOULDN'T BE EXECUTED
+### Add a custom, executable POST request code block below (preferrably using curl)
+
