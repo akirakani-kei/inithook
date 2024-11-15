@@ -34,11 +34,11 @@ channel-id =
 
 ### Embed Color (custom colors must be decimal)
 
-# embed-color = 3880010
+# embed-color = 3880010 (custom color)
 # or
-# embed-color = random
+# embed-color = random (chooses a random color)
 # or
-# embed-color = distro
+# embed-color = distro (main color of the distro you're running)
 
 embed-color = distro
 
