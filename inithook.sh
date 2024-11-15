@@ -82,7 +82,7 @@ while [ $attempt -le 20 ]; do
 EOF
 )
 
-        if grep -E "^\s*discord\s*$" /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc | grep -vq "^#"; then
+        if grep -Eq "^[[:space:]]*discord[[:space:]]*$" "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc"; then
 
         for CHANNEL_ID in $CHANNEL_IDS; do
 
@@ -94,6 +94,16 @@ EOF
 
         fi
 
+        if grep -Eq "^[[:space:]]*custom[[:space:]]*$" "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc"; then
+
+        BLOCK=$(awk '/^\[Custom\]/ {flag=1; next} flag' "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc")
+        USER_SHELL=$(getent passwd "$(who | awk 'NR==1{print $1}')" | cut -d: -f7)
+        
+        if [[ -n "$BLOCK" ]]; then
+            echo "$BLOCK" | "$USER_SHELL" 
+        fi
+
+        fi
 
         #!!!
         exit 0
