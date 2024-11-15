@@ -81,6 +81,9 @@ while [ $attempt -le 20 ]; do
         }
 EOF
 )
+
+        if grep -E "^\s*discord\s*$" /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc | grep -vq "^#"; then
+
         for CHANNEL_ID in $CHANNEL_IDS; do
 
         curl --request POST -H "Content-Type: application/json" -H "Authorization: Bot $TOKEN" \
@@ -88,8 +91,8 @@ EOF
         https://discord.com/api/v10/channels/$CHANNEL_ID/messages
 
         done
-        
 
+        fi
 
 
         #!!!
