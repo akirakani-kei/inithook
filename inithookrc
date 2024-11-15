@@ -5,13 +5,20 @@
 [Options]
 
 ### Uncomment your preferred format.
-### simple (overall boot time); complex (times specific boot stages)
+### simple (overall boot time); complex (times of specific boot stages)
 
 #format = simple
 #format = complex
 
 ### Set distro-image to false if you don't want the in-use distro icon sent with the embed.
 distro-image = true
+
+[Platforms]
+
+### Uncomment all platforms you'd like the script to send boot information to.
+
+#discord
+#custom-curl
 
 [Discord]
 
