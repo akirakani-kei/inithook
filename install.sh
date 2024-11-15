@@ -76,11 +76,23 @@ else
   exit 1
 fi
 
+
+read -p "Activate Discord functionality (go through Discord setup)? [Y/n]: " prompt
+
+prompt="${prompt:-Y}"
+prompt=$(echo "$prompt" | tr '[:upper:]' '[:lower:]')
+
+if [ "$prompt" = "y" ]; then
+
 read -p "Enter Discord Client Token (found at: https://discord.com/developers/applications): " token
 read -p "Enter Discord Channel ID (right click on wanted channel, click on Copy Channel ID): " channel_id
 
 sed -i "/^[^#]*token =/s/token =.*/token = $token/" "$HOME/.config/inithook/inithookrc"
 sed -i "/^[^#]*channel-id =/s/channel-id =.*/channel-id = $channel_id/" "$HOME/.config/inithook/inithookrc"
+sed -i "s/^#discord/discord/" "$HOME/.config/inithook/inithookrc"   
+
+fi
+
 
 echo "Select format:"
 echo "1) simple (overall boot time)"
