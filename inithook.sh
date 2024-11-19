@@ -19,73 +19,49 @@ while [ $attempt -le 20 ]; do
 
     ### FUNCTIONS
 
-    bootinfo () {
+bootinfo() {
+    local prefix="$1"
+    local boot_time
+    boot_time=$(systemd-analyze | grep -oP '(?<=\= ).*')
 
     if [ "$format" = "simple" ]; then
-
-
-    OUTPUT="$HOSTNAME booted in: $(systemd-analyze | grep -oP '(?<=\= ).*')"
-    echo "${OUTPUT}" > /var/log/inithooktemp.log
-
+        echo "${prefix}${prefix}${prefix}$HOSTNAME${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}" > /var/log/inithooktemp.log
+    
     elif [ "$format" = "complex" ]; then
 
-        OUTPUT1="$HOSTNAME booted in: $(systemd-analyze | grep -oP '(?<=\= ).*')"
-        OUTPUT2="firmware: $(systemd-analyze | sed -n 's/.*Startup finished in \([^ ]*\).*/\1/p')"
-        OUTPUT3="loader: $(systemd-analyze | sed -n 's/.*(firmware) + \([^ ]*\).*/\1/p')"
-        OUTPUT4="kernel: $(systemd-analyze | sed -n 's/.*(loader) + \([^ ]*\).*/\1/p')"
-        OUTPUT5="userspace: $(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')"
-        echo "${OUTPUT1}" > /var/log/inithooktemp.log
-        echo >> /var/log/inithooktemp.log
-        echo "${OUTPUT2}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT3}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT4}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT5}" >> /var/log/inithooktemp.log
-        echo >> /var/log/inithooktemp.log
-        printf "Connection established after: %.3f seconds. (post boot)" "$delta" >> /var/log/inithooktemp.log
+        local firmware loader kernel userspace
+        firmware=$(systemd-analyze | sed -n 's/.*Startup finished in \([^ ]*\).*/\1/p')
+        loader=$(systemd-analyze | sed -n 's/.*(firmware) + \([^ ]*\).*/\1/p')
+        kernel=$(systemd-analyze | sed -n 's/.*(loader) + \([^ ]*\).*/\1/p')
+        userspace=$(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')
+
+        {
+            echo "${prefix}${prefix}${prefix}$HOSTNAME${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}"
+            echo
+            echo "${prefix}firmware: ${firmware}${prefix}"
+            echo "${prefix}loader: ${loader}${prefix}"
+            echo "${prefix}kernel: ${kernel}${prefix}"
+            echo "${prefix}userspace: ${userspace}${prefix}"
+            echo
+            printf "${prefix}Connection established after: %.3f seconds. (post boot)${prefix}" "$delta"
+        } > /var/log/inithooktemp.log
     fi
+}
 
-
-    }    
-
-    discordbootinfo() {
-
-    if [ "$format" = "simple" ]; then
-
-    OUTPUT="***$HOSTNAME** booted in: **$(systemd-analyze | grep -oP '(?<=\= ).*')***"
-    echo "${OUTPUT}" > /var/log/inithooktemp.log
-
-    elif [ "$format" = "complex" ]; then
-
-        OUTPUT1="***$HOSTNAME** booted in: **$(systemd-analyze | grep -oP '(?<=\= ).*')***"
-        OUTPUT2="*firmware: $(systemd-analyze | sed -n 's/.*Startup finished in \([^ ]*\).*/\1/p')*"
-        OUTPUT3="*loader: $(systemd-analyze | sed -n 's/.*(firmware) + \([^ ]*\).*/\1/p')*"
-        OUTPUT4="*kernel: $(systemd-analyze | sed -n 's/.*(loader) + \([^ ]*\).*/\1/p')*"
-        OUTPUT5="*userspace: $(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')*"
-        echo "${OUTPUT1}" > /var/log/inithooktemp.log
-        echo >> /var/log/inithooktemp.log
-        echo "${OUTPUT2}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT3}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT4}" >> /var/log/inithooktemp.log
-        echo "${OUTPUT5}" >> /var/log/inithooktemp.log
-        echo >> /var/log/inithooktemp.log
-        printf "*Connection established after: %.3f seconds. (post boot)*" "$delta" >> /var/log/inithooktemp.log
-    fi
-
-    }
 
     discordfunc() {
 
-        distroif=$(grep -oP '^(?!#).*distro-image = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        local distroif=$(grep -oP '^(?!#).*distro-image = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
 
         if [ "$distroif" = "true" ]; then
 
-        distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
+        local distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
 
         fi
 
-        TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
-        CHANNEL_IDS=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
-        COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        local TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        local CHANNEL_IDS=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+        local COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
 
             if [ "$COLOR" == "random" ]; then
                 COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
@@ -95,10 +71,10 @@ while [ $attempt -le 20 ]; do
             fi
 
 
-        discordbootinfo
-        MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
+        bootinfo "*"
+        local MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
 
-        JSON_THING=$(cat << EOF
+        local JSON_THING=$(cat << EOF
         {
             "embeds": [
                 {
