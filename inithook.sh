@@ -17,8 +17,39 @@ while [ $attempt -le 20 ]; do
 
     format=$(grep -oP '^(?!#).*format = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
 
+    ### FUNCTIONS
+
+    bootinfo () {
+
     if [ "$format" = "simple" ]; then
 
+
+    OUTPUT="$HOSTNAME booted in: $(systemd-analyze | grep -oP '(?<=\= ).*')"
+    echo "${OUTPUT}" > /var/log/inithooktemp.log
+
+    elif [ "$format" = "complex" ]; then
+
+        OUTPUT1="$HOSTNAME booted in: $(systemd-analyze | grep -oP '(?<=\= ).*')"
+        OUTPUT2="firmware: $(systemd-analyze | sed -n 's/.*Startup finished in \([^ ]*\).*/\1/p')"
+        OUTPUT3="loader: $(systemd-analyze | sed -n 's/.*(firmware) + \([^ ]*\).*/\1/p')"
+        OUTPUT4="kernel: $(systemd-analyze | sed -n 's/.*(loader) + \([^ ]*\).*/\1/p')"
+        OUTPUT5="userspace: $(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')"
+        echo "${OUTPUT1}" > /var/log/inithooktemp.log
+        echo >> /var/log/inithooktemp.log
+        echo "${OUTPUT2}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT3}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT4}" >> /var/log/inithooktemp.log
+        echo "${OUTPUT5}" >> /var/log/inithooktemp.log
+        echo >> /var/log/inithooktemp.log
+        printf "Connection established after: %.3f seconds. (post boot)" "$delta" >> /var/log/inithooktemp.log
+    fi
+
+
+    }    
+
+    discordbootinfo() {
+
+    if [ "$format" = "simple" ]; then
 
     OUTPUT="***$HOSTNAME** booted in: **$(systemd-analyze | grep -oP '(?<=\= ).*')***"
     echo "${OUTPUT}" > /var/log/inithooktemp.log
@@ -40,18 +71,22 @@ while [ $attempt -le 20 ]; do
         printf "*Connection established after: %.3f seconds. (post boot)*" "$delta" >> /var/log/inithooktemp.log
     fi
 
+    }
+
+    discordfunc() {
 
         distroif=$(grep -oP '^(?!#).*distro-image = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
 
         if [ "$distroif" = "true" ]; then
 
         distro=$(grep '^NAME=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | sed -E 's/^Linux //I' | awk '{print tolower($1)}')
+
         fi
-        
 
         TOKEN=$(grep -oP '^(?!#).*token = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
         CHANNEL_IDS=$(grep -oP '^(?!#).*channel-id = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
         COLOR=$(grep -oP '^(?!#).*embed-color = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+
             if [ "$COLOR" == "random" ]; then
                 COLOR=$((((RANDOM << 15) | RANDOM)%16777216))
 
@@ -59,9 +94,9 @@ while [ $attempt -le 20 ]; do
             COLOR=$(curl -s https://raw.githubusercontent.com/akirakani-kei/distro-icons/refs/heads/main/colors | grep -oP "^(?!#).*\b$distro\b = \K.*")
             fi
 
+
+        discordbootinfo
         MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
-
-
 
         JSON_THING=$(cat << EOF
         {
@@ -82,8 +117,6 @@ while [ $attempt -le 20 ]; do
 EOF
 )
 
-        if grep -Eq "^[[:space:]]*discord[[:space:]]*$" "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc"; then
-
         for CHANNEL_ID in $CHANNEL_IDS; do
 
         curl --request POST -H "Content-Type: application/json" -H "Authorization: Bot $TOKEN" \
@@ -91,8 +124,25 @@ EOF
         https://discord.com/api/v10/channels/$CHANNEL_ID/messages
 
         done
+    }
+
+
+
+        ### DISCORD
+
+        if grep -Eq "^[[:space:]]*discord[[:space:]]*$" "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc"; then
+
+        discordfunc
 
         fi
+
+        ### !!!
+        bootinfo
+        ### !!!
+        
+
+
+        ### CUSTOM
 
         if grep -Eq "^[[:space:]]*custom[[:space:]]*$" "/home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc"; then
 
@@ -104,6 +154,8 @@ EOF
         fi
 
         fi
+
+
 
         #!!!
         exit 0
