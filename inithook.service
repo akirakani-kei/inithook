@@ -8,8 +8,8 @@ ExecStart=/usr/local/bin/inithook.sh
 Type=simple
 Restart=on-failure
 RestartSec=5
-StartLimitBurst=5
-StartLimitInterval=10s
+StartLimitBurst=20
+StartLimitInterval=100s
 User=root
 Group=root
 
