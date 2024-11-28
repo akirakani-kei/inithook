@@ -1,15 +1,12 @@
 [Unit]
 Description=Tracker Service for Startup Activity via HTTP Requests
 After=multi-user.target network-online.target
-Requires=network-online.target
+Requires=network-online.target multi-user.target
 
 [Service]
-ExecStart=/usr/local/bin/inithook.sh
-Type=simple
-Restart=on-failure
-RestartSec=5
-StartLimitBurst=20
-StartLimitInterval=100s
+ExecStart=/bin/sh -c '/usr/local/bin/inithook.sh &'
+Type=oneshot
+RemainAfterExit=false
 User=root
 Group=root
 
