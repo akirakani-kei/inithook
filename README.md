@@ -4,7 +4,7 @@ Tracker Service for Startup Activity via HTTP Requests
 
 file                    |  path
 ------------------------|----------------------
-inithook.sh             | /usr/local/bin/
-inithook.service        | /etc/systemd/system/
+inithook.sh             | ~/.config/inithook/
+inithook.service        | ~/.config/systemd/user/
 inithookrc              | ~/.config/inithook/
-inithooktemp.log        | /var/log/
+inithooktemp.log        | ~/.config/inithook/
