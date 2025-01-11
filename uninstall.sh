@@ -1,5 +1,3 @@
-rm -rf .config ~/.config/inithook
-sudo rm /etc/systemd/system/inithook.service
-sudo rm /usr/local/bin/inithook.sh
-sudo rm /var/log/inithooktemp.log
-sudo systemctl disable inithook.service
+rm -rf ~/.config/inithook
+rm ~/.config/systemd/user/inithook.service
+systemctl --user disable inithook.service
