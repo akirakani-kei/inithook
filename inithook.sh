@@ -2,20 +2,19 @@
 
 attempt=1
 
-touch /var/log/inithooktemp.log
+touch /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithooktemp.log
 
 start_time=$(date +%s.%N)
 
 while [ $attempt -le 20 ]; do
     if ping -c 1 8.8.8.8 &> /dev/null && [ -n "$(who | grep -E 'tty|pts')" ] && \
-#    [ "$(systemctl is-system-running)" != "starting" ] && \
-    ! systemd-analyze 2>&1 | grep -q "Bootup is not yet finished" && \
-    [ "$(systemctl is-system-running)" != "initializing" ]; then
+    ! systemd-analyze 2>&1 | grep -q "Bootup is not yet finished"; then
 
     connection_time=$(date +%s.%N)
-    delta=$(echo "$connection_time - $start_time" | bc)
-
+    delta=$(awk "BEGIN {print $connection_time - $start_time}")
+    
     format=$(grep -oP '^(?!#).*format = \K.*' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithookrc)
+    host=$(cat /etc/hostname)
 
     ### FUNCTIONS
 
@@ -24,7 +23,7 @@ bootinfo() {
     boot_time=$(systemd-analyze | grep -oP '(?<=\= ).*')
 
     if [ "$format" = "simple" ]; then
-        echo "${prefix}${prefix}${prefix}$(hostname)${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}" > /var/log/inithooktemp.log
+        echo "${prefix}${prefix}${prefix}${host}${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}" > /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithooktemp.log
     
     elif [ "$format" = "complex" ]; then
 
@@ -34,7 +33,7 @@ bootinfo() {
         userspace=$(systemd-analyze | sed -n 's/.*(kernel) + \([^ ]*\).*/\1/p')
 
         {
-            echo "${prefix}${prefix}${prefix}$(hostname)${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}"
+            echo "${prefix}${prefix}${prefix}${host}${prefix}${prefix} booted in: ${prefix}${prefix}${boot_time}${prefix}${prefix}${prefix}"
             echo
             echo "${prefix}firmware: ${firmware}${prefix}"
             echo "${prefix}loader: ${loader}${prefix}"
@@ -42,7 +41,7 @@ bootinfo() {
             echo "${prefix}userspace: ${userspace}${prefix}"
             echo
             printf "${prefix}Connection established after: %.3f seconds. (post boot)${prefix}" "$delta"
-        } > /var/log/inithooktemp.log
+        } > /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithooktemp.log
     fi
 }
 
@@ -69,7 +68,7 @@ discordfunc() {
     fi
 
     bootinfo "*"
-    MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /var/log/inithooktemp.log | sed 's/"/\\"/g')
+    MESSAGE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithooktemp.log | sed 's/"/\\"/g')
 
     JSON_THING=$(cat << EOF
     {
@@ -138,18 +137,16 @@ exit 0
 
 else
     echo "Failed after $attempt attempts."
-    echo "Failed after $attempt attempts. Could be the fault of not managing to establish an internet connection, no users logging in or systemd-analyze not being available (timed out)" > /var/log/inithooktemp.log
+    echo "Failed after $attempt attempts. Could be the fault of not managing to establish an internet connection, no users logging in or systemd-analyze not being available (timed out)" > /home/$(who | awk 'NR==1{print $1}')/.config/inithook/inithooktemp.log
 
     if ping -c 1 8.8.8.8 &> /dev/null; then
         echo "network OK"
     fi
+
     if [ -n "$(who | grep -E 'tty|pts')" ]; then
         echo "user OK"
     fi
-#    if [ "$(systemctl is-system-running)" != "starting" ]; then
-#        echo "not starting  OK"
-#        echo
-#    fi
+
     if ! systemd-analyze 2>&1 | grep -q "Bootup is not yet finished"; then
         echo "systemd-analyze OK"
     fi
