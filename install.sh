@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# this script's a mess due to the project having underwent numerous (moronic) changes throughout its development that previously required elevated privileges for a few more aspects than it does now.
+# i have no real incetive to fix/update an install script to be more efficient (and all it does is move some files)
+# do bear in mind that this was my first ever scripting project, i'm aware it's hot garbage
+# it did serve as my stepping stone into the world of shell scripting, which i am grateful for
+# coming back to this however was the most painful experience of fixing my own code i've ever been subjected to
+
+#i thoroughly apologise
+
 echo    ".----------------------------------------."
 echo    "|  _       _ _   _                 _     |"
 echo    "| (_)_ __ (_) |_| |__   ___   ___ | | __ |"
@@ -30,11 +38,12 @@ if [ "$(id -u)" -eq 0 ]; then
 
     if [ "$prompt" = "y" ]; then
         echo "Continuing as root..."
-        mv inithook.sh /usr/local/bin/
-        chmod +x /usr/local/bin/inithook.sh
-        mv inithook.service /etc/systemd/system/
-        systemctl enable inithook.service
+        rm -rf ~/.config/inithook
         mkdir -p ~/.config/inithook
+        mv inithook.sh ~/.config/inithook/
+        chmod +x ~/.config/inithook/inithook.sh
+        mv inithook.service ~/.config/systemd/user/
+        systemctl --user enable inithook.service
         mv inithookrc ~/.config/inithook/
         cd ..
         rm -rf inithook
@@ -46,21 +55,23 @@ if [ "$(id -u)" -eq 0 ]; then
     fi
 elif command -v sudo >/dev/null 2>&1; then
     echo "Running with sudo"
-    sudo mv inithook.sh /usr/local/bin/
-    sudo chmod +x /usr/local/bin/inithook.sh
-    sudo mv inithook.service /etc/systemd/system/
-    sudo systemctl enable inithook.service
+    rm -rf ~/.config/inithook
     mkdir -p ~/.config/inithook
+    mv inithook.sh ~/.config/inithook/
+    sudo chmod +x ~/.config/inithook/inithook.sh
+    mv inithook.service ~/.config/systemd/user/
+    systemctl --user enable inithook.service
     mv inithookrc ~/.config/inithook/
     cd ..
     sudo rm -rf inithook
 elif command -v doas >/dev/null 2>&1; then
     echo "Running with doas"
-    doas mv inithook.sh /usr/local/bin/
-    doas chmod +x /usr/local/bin/inithook.sh
-    doas mv inithook.service /etc/systemd/system/
-    doas systemctl enable inithook.service
+    rm -rf ~/.config/inithook
     mkdir -p ~/.config/inithook
+    mv inithook.sh ~/.config/inithook/
+    doas chmod +x ~/.config/inithook/inithook.sh
+    mv inithook.service ~/.config/systemd/user/
+    systemctl --user enable inithook.service
     mv inithookrc ~/.config/inithook/
     cd ..
     doas rm -rf inithook
