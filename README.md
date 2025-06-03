@@ -11,6 +11,14 @@ Tracker Service for Startup Activity via HTTP Requests
 > *The script runs as a systemd **user** process and should be interacted with via the `--user` tag:* <br>
 `systemctl --user status inithook`
 
+## Installation
+
+```shell
+sh -c "$(curl -sS https://raw.githubusercontent.com/akirakani-kei/inithook/refs/heads/main/install.sh)"
+```
+
+
+## Paths
 
 file                    |  path
 ------------------------|----------------------
@@ -19,6 +27,3 @@ inithook.service        | ~/.config/systemd/user/
 inithookrc              | ~/.config/inithook/
 inithooktemp.log        | ~/.config/inithook/
 
-```shell
-sh -c "$(curl -sS https://raw.githubusercontent.com/akirakani-kei/inithook/refs/heads/main/install.sh)"
-```
